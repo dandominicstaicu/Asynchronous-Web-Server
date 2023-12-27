@@ -77,6 +77,13 @@ struct connection {
 	http_parser request_parser;
 };
 
+// Server socket file descriptor
+static int listenfd;
+
+
+// Epoll file descriptor
+static int epollfd;
+
 void handle_client(uint32_t event, struct connection *conn);
 void handle_new_connection(void);
 void handle_input(struct connection *conn);

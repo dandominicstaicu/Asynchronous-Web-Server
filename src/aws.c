@@ -63,8 +63,16 @@ static enum resource_type connection_get_resource_type(struct connection *conn)
 
 struct connection *connection_create(int sockfd)
 {
-	/* TODO: Initialize connection structure on given socket. */
-	return NULL;
+	/* Initialize connection structure on given socket. */
+	struct connection *conn = malloc(sizeof(*conn));
+
+	DIE(conn == NULL, "malloc failed: connection_create?");
+
+	conn->sockfd = sockfd;
+	memset(conn->recv_buffer, 0, BUFSIZ);
+	memset(conn->send_buffer, 0, BUFSIZ);
+
+	return conn;
 }
 
 void connection_start_async_io(struct connection *conn)
@@ -81,17 +89,52 @@ void connection_remove(struct connection *conn)
 
 void handle_new_connection(void)
 {
-	/* TODO: Handle a new connection request on the server socket. */
+	/* Handle a new connection request on the server socket. */
+	int newfd;
+	struct sockaddr_in client_addr;
+	socklen_t client_len = sizeof(client_addr);
+	struct connection *conn;
+	int flags;
+	int rc = 0;
 
-	/* TODO: Accept new connection. */
+	/* Accept new connection. */
+	newfd = accept(listenfd, (SSA *) &client_addr, &client_len);
+	DIE(newfd < 0, "accept");
 
-	/* TODO: Set socket to be non-blocking. */
+	/* Set socket to be non-blocking. */
+	flags = fcntl(newfd, F_GETFL, 0);
+	DIE(flags < 0, "fcntl F_GETFL");
+	dlog(LOG_ERR, "Accepted connection from: %s:%d\n",
+	     inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
-	/* TODO: Instantiate new connection handler. */
 
-	/* TODO: Add socket to epoll. */
+	flags = (flags | O_NONBLOCK);
+	rc = fcntl(newfd, F_SETFL, flags);
+	if (rc < 0) {
+		perror("fcntl F_SETFL");
+		close(newfd);
+		return;
+	}
 
-	/* TODO: Initialize HTTP_REQUEST parser. */
+	/* Instantiate new connection handler. */
+	conn = connection_create(newfd);
+	if (conn == NULL) {
+		perror("Cannot create new connection\n");
+		close(newfd);
+		return;
+	}
+
+	/* Add socket to epoll. */
+	rc = w_epoll_add_ptr_in(epollfd, newfd, conn);
+	if (rc < 0) {
+		perror("w_epoll_add_fd");
+		connection_remove(conn);
+		return;
+	}
+
+	/* Initialize HTTP_REQUEST parser. */
+	http_parser h_parser;
+	http_parser_init(&h_parser, HTTP_REQUEST);
 }
 
 void receive_data(struct connection *conn)
@@ -197,25 +240,50 @@ int main(void)
 
 	/* TODO: Initialize asynchronous operations. */
 
-	/* TODO: Initialize multiplexing. */
+	/* Initialize multiplexing. */
+	epollfd = w_epoll_create();
+	DIE(epollfd < 0, "w_epoll_create");
 
-	/* TODO: Create server socket. */
 
-	/* TODO: Add server socket to epoll object*/
+	/*
+		!!debugging!!
+		sudo lsof -i :8888
+		kill <PID>
+	*/
+
+	/* Create server socket. */
+	listenfd = tcp_create_listener(AWS_LISTEN_PORT,
+		DEFAULT_LISTEN_BACKLOG);
+	DIE(listenfd < 0, "tcp_create_listener");
+
+	/* Add server socket to epoll object*/
+	rc = w_epoll_add_fd_in(epollfd, listenfd);
+	DIE(rc < 0, "w_epoll_add_fd_in");
 
 	/* Uncomment the following line for debugging. */
-	// dlog(LOG_INFO, "Server waiting for connections on port %d\n", AWS_LISTEN_PORT);
+	dlog(LOG_INFO, "Server waiting for connections on port %d\n", AWS_LISTEN_PORT);
 
 	/* server main loop */
 	while (1) {
 		struct epoll_event rev;
 
-		/* TODO: Wait for events. */
+		/* Wait for events. */
+		rc = w_epoll_wait_infinite(epollfd, &rev);
+		DIE(rc < 0, "w_epoll_wait_infinite");
 
-		/* TODO: Switch event types; consider
+		/* Switch event types; considering:
 		 *   - new connection requests (on server socket)
 		 *   - socket communication (on connection sockets)
 		 */
+
+		if (rev.data.fd == listenfd) {
+			dlog(LOG_DEBUG, "New connection\n");
+			if (rev.events & EPOLLIN)
+				handle_new_connection();
+		} else {
+			dlog(LOG_INFO, "on else branch in main");
+			
+		}
 	}
 
 	return 0;
