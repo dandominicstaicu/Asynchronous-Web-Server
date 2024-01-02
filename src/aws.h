@@ -40,6 +40,7 @@ extern "C" {
 	"Content-Type: text/html\r\n"                                          \
 	"\r\n"
 
+#define MAX_EVENTS 128
 
 enum connection_state {
 	STATE_INITIAL,
@@ -119,7 +120,7 @@ void connection_remove(struct connection *conn);
 
 int connection_open_file(struct connection *conn);
 
-int connection_send_dynamic(struct connection *conn);
+void connection_send_dynamic(struct connection *conn);
 void connection_start_async_io(struct connection *conn);
 enum connection_state connection_send_static(struct connection *conn);
 void connection_complete_async_io(struct connection *conn);
@@ -131,9 +132,14 @@ void receive_data(struct connection *conn);
 
 void handle_no_file(struct connection *conn);
 void handle_static_file(struct connection *conn);
-void handle_dynamic_file(struct connection *conn);
 
-enum connection_state send_message(struct connection *conn);
+void setup_io_context(struct connection *conn);
+void prepare_dynamic_io(struct connection *conn);
+void submit_io_request(struct connection *conn);
+
+void update_connection_state_for_sending(struct connection *conn, struct io_event *event);
+int check_and_update_connection_state(struct connection *conn);
+void clean_up_connection(struct connection *conn);
 
 #ifdef __cplusplus
 }
