@@ -1,0 +1,105 @@
+--2023-12-31 18:36:36--  http://localhost:8888/static/small00.dat
+Resolving localhost (localhost)... 127.0.0.1
+Connecting to localhost (localhost)|127.0.0.1|:8888... connected.
+HTTP request sent, awaiting response... 404 Not Found
+2023-12-31 18:36:36 ERROR 404: Not Found.
+
+01) Test executable exists.............................................passed  [01/90]
+02) Test executable runs...............................................passed  [01/90]
+03) Test listening.....................................................passed  [01/90]
+04) Test listening on port.............................................passed  [01/90]
+05) Test accepts connections...........................................passed  [01/90]
+06) Test accepts multiple connections..................................passed  [01/90]
+07) Test epoll usage...................................................passed  [01/90]
+08) Test disconnect....................................................passed  [01/90]
+09) Test multiple disconnect...........................................passed  [01/90]
+10) Test connect disconnect connect....................................passed  [01/90]
+11) Test multiple connect disconnect connect...........................passed  [01/90]
+12) Test unordered connect disconnect connect..........................passed  [01/90]
+13) timeout............................................................failed  [00/90]
+14) timeout............................................................failed  [00/90]
+15) Test sendfile usage................................................passed  [02/90]
+16) Test small static file wget........................................passed  [02/90]
+17) Test small static file wget cmp....................................failed  [ 0/90]
+17) Test small static file wget cmp - memcheck.........................passed  [01/90]
+18) Test large static file wget........................................passed  [02/90]
+19) Test large static file wget cmp....................................failed  [ 0/90]
+19) Test large static file wget cmp - memcheck.........................passed  [01/90]
+20) Test bad static file 404...........................................passed  [02/90]
+21) Test bad path 404..................................................passed  [02/90]
+22) Test get one static file then another..............................failed  [ 0/90]
+22) Test get one static file then another - memcheck...................passed  [01/90]
+23) Test get two simultaneous static files.............................failed  [ 0/90]
+23) Test get two simultaneous static files - memcheck..................passed  [01/90]
+24) Test get multiple simultaneous static files........................failed  [ 0/90]
+24) Test get multiple simultaneous static files - memcheck.............passed  [01/90]
+25) Test io submit uses................................................passed  [02/90]
+26) timeout............................................................failed  [00/90]
+/^[27) timeout............................................................failed  [00/90]
+28) timeout............................................................failed  [00/90]
+29) timeout............................................................failed  [00/90]
+30) timeout............................................................failed  [00/90]
+31) timeout............................................................failed  [00/90]
+32) timeout............................................................failed  [00/90]
+33) timeout............................................................failed  [00/90]
+34) timeout............................................................failed  [00/90]
+35) timeout............................................................failed  [00/90]
+
+
+
+
+
+
+
+
+
+
+
+ [main(), aws.c:578] Server waiting for connections on port 8888
+ [main(), aws.c:596] New connection
+ [handle_new_connection(), aws.c:113] Accepted connection from: 127.0.0.1:43424
+ [handle_client(), aws.c:544] New message
+ [receive_data(), aws.c:170] Received 20 bytes
+ [handle_client(), aws.c:544] New message
+ [receive_data(), aws.c:170] Received 16 bytes
+ [receive_data(), aws.c:201] Received message from: 127.0.0.1:43424
+ [parse_header(), aws.c:249] Parsed HTTP request (bytes: 36), path: ./static/small00.dat
+ [parse_header(), aws.c:253] pula request_path: ./static/small00.dat
+ [parse_header(), aws.c:261] pula Sending static file
+ [solve_file(), aws.c:279] ./static/small00.dat is of type 1
+ [solve_file(), aws.c:283] Error in open: No such file or directory
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:514] Not all data sent
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:514] Not all data sent
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:514] Not all data sent
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:514] Not all data sent
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:514] Not all data sent
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:514] Not all data sent
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:514] Not all data sent
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:514] Not all data sent
+ [handle_client(), aws.c:547] Ready to send message
+ [send_message(), aws.c:423] Sending message to 127.0.0.1:43424 ->
+ [send_message(), aws.c:424] --
+HTTP/1.1 404 Not Found
+Date: Mon, 30 May 2022 16:00:00 GMT
+Server: Neard/9.9.9
+Last-Modified: Mon, 1 May 2022 15:00:00 GMT
+Accept-Ranges: bytes
+Content-Length: 0
+Vary: Accept-Encoding
+Connection: close
+Content-Type: text/html
+
+--
+ [handle_client(), aws.c:547] Ready to send message
+ [handle_client_reply(), aws.c:525] RESOURCE_TYPE_STATIC
+ [static_file_send(), aws.c:445] conn->fd = -1
+ [static_file_send(), aws.c:452] Error in sendfile: Bad file descriptor
+ [handle_static_file(), aws.c:466] conn->state = 10

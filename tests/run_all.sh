@@ -4,7 +4,7 @@
 first_test=1
 last_test=35
 script=run_test.sh
-timeout=5 #30
+timeout=30 #30
 log_file=test.log
 
 exec_name="aws"
