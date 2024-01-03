@@ -69,17 +69,17 @@ enum resource_type {
 
 /* Structure acting as a connection handler */
 struct connection {
-    /* file to be sent */
-	int fd; // file fd
+	/* file to be sent */
+	int fd;
 	char filename[BUFSIZ];
 
-    /* asynchronous notification */
+	/* asynchronous notification */
 	int eventfd;
 	int sockfd;
 
 	io_context_t ctx;
-	struct iocb *iocb; // iocb
-	struct iocb **piocb; // *piocb[1]
+	struct iocb iocb;
+	struct iocb *piocb[1];
 	size_t file_size;
 
 	/* buffers used for receiving messages */
@@ -103,11 +103,11 @@ struct connection {
 	http_parser request_parser;
 };
 
-// Server socket file descriptor
+/* Server socket file descriptor */
 static int listenfd;
 
 
-// Epoll file descriptor
+/* Epoll file descriptor */
 static int epollfd;
 
 void handle_client(uint32_t event, struct connection *conn);
@@ -140,6 +140,8 @@ void submit_io_request(struct connection *conn);
 void update_connection_state_for_sending(struct connection *conn, struct io_event *event);
 int check_and_update_connection_state(struct connection *conn);
 void clean_up_connection(struct connection *conn);
+
+int is_end_of_header(struct connection *conn);
 
 #ifdef __cplusplus
 }
